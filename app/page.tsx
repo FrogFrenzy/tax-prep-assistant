@@ -157,8 +157,11 @@ export default function Home() {
                     <h1 className="text-4xl font-bold text-gray-900 mb-2">Tax Prep Assistant</h1>
                     <p className="text-gray-600">Organize and track your tax documents efficiently</p>
                     <div className="mt-4 p-4 bg-green-50 rounded-lg">
-                        <p className="text-green-800 text-sm">
-                            ✨ No setup required! Upload documents and get instant analysis and tax return generation.
+                        <p className="text-green-800 text-sm font-medium">
+                            ✨ No setup required! Click the blue "Upload Document" buttons below to get started.
+                        </p>
+                        <p className="text-green-700 text-xs mt-1">
+                            Each document card has an upload button when status is "Pending"
                         </p>
                     </div>
                 </header>
@@ -266,11 +269,11 @@ export default function Home() {
                                             />
                                             <label
                                                 htmlFor={`file-${document.id}`}
-                                                className={`flex-1 w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium cursor-pointer flex items-center justify-center ${uploading === document.id ? 'opacity-50' : ''
+                                                className={`flex-1 w-full bg-blue-500 text-white px-4 py-3 rounded-lg hover:bg-blue-600 transition-colors font-medium cursor-pointer flex items-center justify-center shadow-md hover:shadow-lg ${uploading === document.id ? 'opacity-50' : ''
                                                     }`}
                                             >
-                                                <FileUp className="h-4 w-4 mr-2" />
-                                                {uploading === document.id ? 'Uploading...' : 'Upload Document'}
+                                                <FileUp className="h-5 w-5 mr-2" />
+                                                {uploading === document.id ? 'Uploading...' : '📄 Upload Document'}
                                             </label>
                                         </div>
                                     )}
