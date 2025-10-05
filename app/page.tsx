@@ -80,7 +80,7 @@ export default function Home() {
         setAnalyzing(document.id)
 
         try {
-            const response = await fetch('/api/analyze', {
+            const response = await fetch('/api/analyze-simple', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -111,7 +111,7 @@ export default function Home() {
         try {
             const analyzedDocs = documents.filter(doc => doc.analysis)
 
-            const response = await fetch('/api/generate-return', {
+            const response = await fetch('/api/generate-return-simple', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -156,13 +156,11 @@ export default function Home() {
                     </div>
                     <h1 className="text-4xl font-bold text-gray-900 mb-2">Tax Prep Assistant</h1>
                     <p className="text-gray-600">Organize and track your tax documents efficiently</p>
-                    {!session && (
-                        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                            <p className="text-blue-800 text-sm">
-                                Sign in with Google to unlock AI-powered document analysis and tax return generation
-                            </p>
-                        </div>
-                    )}
+                    <div className="mt-4 p-4 bg-green-50 rounded-lg">
+                        <p className="text-green-800 text-sm">
+                            ✨ No setup required! Upload documents and get instant analysis and tax return generation.
+                        </p>
+                    </div>
                 </header>
 
                 {/* Progress Overview */}
@@ -280,12 +278,12 @@ export default function Home() {
                                     {document.status === 'uploaded' && (
                                         <button
                                             onClick={() => handleAnalyzeDocument(document)}
-                                            disabled={analyzing === document.id || !session}
-                                            className={`w-full bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors text-sm font-medium flex items-center justify-center ${analyzing === document.id || !session ? 'opacity-50' : ''
+                                            disabled={analyzing === document.id}
+                                            className={`w-full bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors text-sm font-medium flex items-center justify-center ${analyzing === document.id ? 'opacity-50' : ''
                                                 }`}
                                         >
                                             <Brain className="h-4 w-4 mr-2" />
-                                            {!session ? 'Sign in to Analyze' : analyzing === document.id ? 'Analyzing...' : 'Analyze with AI'}
+                                            {analyzing === document.id ? 'Analyzing...' : 'Analyze Document'}
                                         </button>
                                     )}
 
@@ -333,12 +331,12 @@ export default function Home() {
                         </p>
                         <button
                             onClick={generateTaxReturn}
-                            disabled={generatingReturn || !session}
-                            className={`bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors font-medium flex items-center ${generatingReturn || !session ? 'opacity-50' : ''
+                            disabled={generatingReturn}
+                            className={`bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors font-medium flex items-center ${generatingReturn ? 'opacity-50' : ''
                                 }`}
                         >
                             <Download className="h-5 w-5 mr-2" />
-                            {!session ? 'Sign in to Generate' : generatingReturn ? 'Generating Tax Return...' : 'Generate Tax Return'}
+                            {generatingReturn ? 'Generating Tax Return...' : 'Generate Tax Return'}
                         </button>
                     </div>
                 )}
@@ -381,14 +379,14 @@ export default function Home() {
                                 <li>• Gather all documents from the previous tax year</li>
                                 <li>• Organize receipts and records by category</li>
                                 <li>• Check for any missing forms from employers</li>
-                                <li>• Set up your Claude API key in environment variables</li>
+                                <li>• No API keys or setup required</li>
                             </ul>
                         </div>
                         <div>
                             <h3 className="font-semibold text-gray-800 mb-2">Don't Forget</h3>
                             <ul className="text-sm text-gray-600 space-y-1">
                                 <li>• Keep copies of all filed documents</li>
-                                <li>• Review AI analysis for accuracy</li>
+                                <li>• Review document analysis for accuracy</li>
                                 <li>• Consider consulting a tax professional for complex situations</li>
                                 <li>• This tool provides guidance, not official tax advice</li>
                             </ul>
