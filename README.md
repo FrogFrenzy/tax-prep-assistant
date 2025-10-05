@@ -5,7 +5,8 @@ A modern web application to help organize and prepare tax documents efficiently.
 ## Features
 
 - **Document Upload**: Upload PDF, image, and text files for tax documents
-- **AI Analysis**: Powered by Claude AI to analyze and extract key information from documents
+- **AI Analysis**: Powered by OpenAI GPT to analyze and extract key information from documents
+- **Google Authentication**: Secure sign-in with Google OAuth
 - **Document Tracking**: Keep track of all your tax documents with status indicators
 - **Category Organization**: Organize documents by Income, Deductions, and Business categories
 - **Progress Monitoring**: Visual progress tracking for document completion
@@ -32,9 +33,13 @@ A modern web application to help organize and prepare tax documents efficiently.
    ```bash
    cp .env.local.example .env.local
    ```
-   Then edit `.env.local` and add your Anthropic Claude API key:
+   Then edit `.env.local` and add your API keys:
    ```
-   ANTHROPIC_API_KEY=your_claude_api_key_here
+   OPENAI_API_KEY=your_openai_api_key_here
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_SECRET=your_nextauth_secret
    ```
 
 4. Run the development server:

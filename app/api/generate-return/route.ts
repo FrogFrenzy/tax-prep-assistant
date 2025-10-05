@@ -1,28 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
+import OpenAI from 'openai'
+import { getServerSession } from 'next-auth'
 
 export async function POST(request: NextRequest) {
   try {
-    const { documents, personalInfo } = await request.json()
-
-    if (!process.env.ANTHROPIC_API_KEY) {
+    const session = await getServerSession()
+    
+    if (!session) {
       return NextResponse.json({ 
         success: false, 
-        error: 'API key not configured' 
+        error: 'Please sign in to generate tax return' 
       })
     }
+
+    const { documents, personalInfo } = await request.json()
+
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'AI service not configured' 
+      })
+    }
+
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    })
 
     // Compile all document analyses
     const documentSummary = documents.map((doc: any) => 
       `${doc.name}: ${doc.analysis || 'Not analyzed'}`
     ).join('\n\n')
 
-    const message = await anthropic.messages.create({
-      model: 'claude-3-sonnet-20240229',
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4',
       max_tokens: 4000,
       messages: [{
         role: 'user',
@@ -45,7 +55,7 @@ Format this as a detailed tax preparation report that could be used by a tax pro
       }]
     })
 
-    const taxReturn = message.content[0].type === 'text' ? message.content[0].text : 'Generation failed'
+    const taxReturn = completion.choices[0]?.message?.content || 'Generation failed'
 
     return NextResponse.json({
       success: true,

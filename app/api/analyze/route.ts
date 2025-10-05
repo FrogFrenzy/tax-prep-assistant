@@ -1,22 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import OpenAI from 'openai'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
+import { getServerSession } from 'next-auth'
 
 export async function POST(request: NextRequest) {
   try {
-    const { filename, documentType } = await request.json()
-
-    if (!process.env.ANTHROPIC_API_KEY) {
+    const session = await getServerSession()
+    
+    if (!session) {
       return NextResponse.json({ 
         success: false, 
-        error: 'API key not configured' 
+        error: 'Please sign in to use AI analysis' 
       })
     }
+
+    const { filename, documentType } = await request.json()
+
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'AI service not configured' 
+      })
+    }
+
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    })
 
     // Read the uploaded file
     const filePath = join(process.cwd(), 'uploads', filename)
@@ -38,9 +48,9 @@ export async function POST(request: NextRequest) {
       extractedText = fileBuffer.toString('utf-8')
     }
 
-    // Analyze document with Claude
-    const message = await anthropic.messages.create({
-      model: 'claude-3-haiku-20240307',
+    // Analyze document with OpenAI
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
       max_tokens: 1000,
       messages: [{
         role: 'user',
@@ -56,11 +66,11 @@ Please extract and return:
 4. Any missing information or errors
 5. Recommendations for tax preparation
 
-Format the response as JSON with clear categories.`
+Format the response as clear, organized text.`
       }]
     })
 
-    const analysis = message.content[0].type === 'text' ? message.content[0].text : 'Analysis failed'
+    const analysis = completion.choices[0]?.message?.content || 'Analysis failed'
 
     return NextResponse.json({
       success: true,
