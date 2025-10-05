@@ -30,7 +30,7 @@ function generateSimpleTaxReturn(documents: any[], personalInfo: any): string {
   report += `${'='.repeat(60)}\n`
   report += `Generated: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}\n`
   report += `Filing Status: ${personalInfo.filingStatus || 'Single'}\n`
-  report += `Prepared using Tax Prep Assistant v1.0\n\n`
+  report += `Prepared using Tax Chicken v1.0 - a Vibe Coded Tax Return Assistant\n\n`
 
   // INCOME SECTION (Form 1040 Lines 1-8)
   report += `PART I - INCOME (Form 1040, Lines 1-8)\n`

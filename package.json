@@ -1,7 +1,7 @@
 {
-  "name": "tax-prep-assistant",
+  "name": "tax-chicken",
   "version": "1.0.0",
-  "description": "A web application to help organize and prepare tax documents",
+  "description": "Tax Chicken: a Vibe Coded Tax Return Assistant - organize and prepare tax documents",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
@@ -34,7 +34,9 @@
     "tax",
     "preparation",
     "documents",
-    "finance"
+    "finance",
+    "tax-chicken",
+    "vibe-coded"
   ],
   "author": "",
   "license": "MIT"

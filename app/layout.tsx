@@ -6,8 +6,8 @@ import { Providers } from './providers'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Tax Prep Assistant',
-  description: 'Organize and prepare your tax documents efficiently',
+  title: 'Tax Chicken - a Vibe Coded Tax Return Assistant',
+  description: 'Organize and prepare your tax documents efficiently with Tax Chicken',
 }
 
 export default function RootLayout({

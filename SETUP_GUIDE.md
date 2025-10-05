@@ -1,4 +1,4 @@
-# Complete Setup Guide for Tax Prep Assistant
+# Complete Setup Guide for Tax Chicken: a Vibe Coded Tax Return Assistant
 
 ## 🚀 Quick Setup Checklist
 
@@ -18,7 +18,7 @@
    - Go to "APIs & Services" → "Credentials"
    - Click "Create Credentials" → "OAuth 2.0 Client IDs"
    - Application type: "Web application"
-   - Name: "Tax Prep Assistant"
+   - Name: "Tax Chicken"
    - Authorized redirect URIs: 
      - `http://localhost:3000/api/auth/callback/google` (for local)
      - `https://your-vercel-app.vercel.app/api/auth/callback/google` (for production)
@@ -101,4 +101,4 @@ npm run dev
 - **Google OAuth**: Free
 - **Vercel Hosting**: Free tier sufficient
 
-Your app is now ready for production use! 🎉
+Tax Chicken is now ready for production use! 🐔🎉

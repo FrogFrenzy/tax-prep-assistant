@@ -59,7 +59,7 @@ export default function Home() {
                 uploadedAt: new Date().toISOString()
             })
 
-            alert(`✅ File "${file.name}" uploaded successfully! Click "Analyze Document" to continue.`)
+            alert(`🐔 File "${file.name}" uploaded successfully! Tax Chicken is ready to analyze. Click "Analyze Document" to continue.`)
         } catch (error) {
             alert('Upload failed: ' + error)
         } finally {
@@ -164,17 +164,18 @@ export default function Home() {
             <div className="max-w-6xl mx-auto px-4">
                 <header className="text-center mb-8">
                     <div className="mb-6"></div>
-                    <h1 className="text-4xl font-bold text-gray-900 mb-2">Tax Prep Assistant</h1>
-                    <p className="text-gray-600">Organize and track your tax documents efficiently</p>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-2">🐔 Tax Chicken</h1>
+                    <p className="text-gray-600 text-lg">a Vibe Coded Tax Return Assistant</p>
+                    <p className="text-gray-500 text-sm mt-1">Organize and track your tax documents efficiently</p>
                     <div className="mt-4 p-4 bg-green-50 rounded-lg">
                         <p className="text-green-800 text-sm font-medium">
-                            ✨ No setup required! Click the blue "📄 Upload Document" buttons below to get started.
+                            🐔 No setup required! Click the blue "📄 Upload Document" buttons below to get started.
                         </p>
                         <p className="text-green-700 text-xs mt-1">
-                            Look for blue buttons in each document card - they should be visible on all "Pending" documents
+                            Tax Chicken will analyze your documents with vibe-coded intelligence!
                         </p>
                         <p className="text-green-600 text-xs mt-1">
-                            Debug: Showing {filteredDocuments.filter(d => d.status === 'pending').length} pending documents with upload buttons
+                            Ready to process: {filteredDocuments.filter(d => d.status === 'pending').length} documents
                         </p>
                     </div>
                 </header>
@@ -286,7 +287,7 @@ export default function Home() {
                                                     }`}
                                             >
                                                 <FileUp className="h-5 w-5 mr-2" />
-                                                {uploading === document.id ? 'Uploading...' : '📄 Upload Document'}
+                                                {uploading === document.id ? '🐔 Uploading...' : '📄 Upload Document'}
                                             </label>
                                         </div>
                                     )}
@@ -299,7 +300,7 @@ export default function Home() {
                                                 }`}
                                         >
                                             <Brain className="h-4 w-4 mr-2" />
-                                            {analyzing === document.id ? 'Analyzing...' : 'Analyze Document'}
+                                            {analyzing === document.id ? '🐔 Analyzing...' : '🧠 Analyze Document'}
                                         </button>
                                     )}
 
@@ -313,7 +314,7 @@ export default function Home() {
                                             </button>
                                             {document.analysis && (
                                                 <div className="bg-gray-50 p-3 rounded text-xs">
-                                                    <strong>AI Analysis:</strong>
+                                                    <strong>🐔 Tax Chicken Analysis:</strong>
                                                     <p className="mt-1 text-gray-600">{document.analysis.substring(0, 150)}...</p>
                                                 </div>
                                             )}
@@ -352,7 +353,7 @@ export default function Home() {
                                 }`}
                         >
                             <Download className="h-5 w-5 mr-2" />
-                            {generatingReturn ? 'Generating IRS Worksheet...' : 'Generate IRS Form 1040 Worksheet'}
+                            {generatingReturn ? '🐔 Generating IRS Worksheet...' : '📋 Generate IRS Form 1040 Worksheet'}
                         </button>
                     </div>
                 )}

@@ -1,12 +1,12 @@
-# Tax Prep Assistant
+# 🐔 Tax Chicken: a Vibe Coded Tax Return Assistant
 
-A modern web application to help organize and prepare tax documents efficiently.
+A modern web application to help organize and prepare tax documents efficiently with style and personality.
 
 ## Features
 
 - **Document Upload**: Upload PDF, image, and text files for tax documents
 - **AI Analysis**: Powered by OpenAI GPT to analyze and extract key information from documents
-- **Google Authentication**: Secure sign-in with Google OAuth
+- **Vibe-Coded Experience**: Built with personality and style
 - **Document Tracking**: Keep track of all your tax documents with status indicators
 - **Category Organization**: Organize documents by Income, Deductions, and Business categories
 - **Progress Monitoring**: Visual progress tracking for document completion
@@ -58,7 +58,7 @@ npm start
 
 ## Deployment
 
-This app is ready to deploy on Vercel:
+Tax Chicken is ready to deploy on Vercel:
 
 1. Push your code to GitHub
 2. Connect your repository to Vercel

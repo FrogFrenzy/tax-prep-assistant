@@ -1,4 +1,4 @@
-# 🚀 Quick Deploy Instructions
+# 🐔 Tax Chicken - Quick Deploy Instructions
 
 ## Your App is Already Live!
 **URL**: https://tax-prep-assistant-6iuxq7ise-curtis-projects-bf93d458.vercel.app
@@ -33,7 +33,7 @@ NEXTAUTH_SECRET = bzQ513rqam1zBNiyEdQTWP5CWoc5mt3vgqp3hGGOymg=
 3. Click "Redeploy" after adding variables
 
 ## ✅ That's it! 
-Your tax prep assistant will have full AI capabilities with Google sign-in.
+Tax Chicken will have full AI capabilities with Google sign-in.
 
 ## Test it:
 1. Visit your app
