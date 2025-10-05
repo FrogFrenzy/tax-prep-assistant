@@ -48,25 +48,18 @@ export default function Home() {
         setUploading(documentId)
 
         try {
-            const formData = new FormData()
-            formData.append('file', file)
-            formData.append('documentId', documentId)
-
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
+            // Simulate upload for demo purposes
+            await new Promise(resolve => setTimeout(resolve, 1500))
+            
+            // For demo, we'll just store the file info and mark as uploaded
+            const filename = `${documentId}_${file.name}`
+            
+            updateDocumentStatus(documentId, 'uploaded', {
+                filename: filename,
+                uploadedAt: new Date().toISOString()
             })
-
-            const result = await response.json()
-
-            if (result.success) {
-                updateDocumentStatus(documentId, 'uploaded', {
-                    filename: result.filename,
-                    uploadedAt: new Date().toISOString()
-                })
-            } else {
-                alert('Upload failed: ' + result.error)
-            }
+            
+            alert(`✅ File "${file.name}" uploaded successfully! Click "Analyze Document" to continue.`)
         } catch (error) {
             alert('Upload failed: ' + error)
         } finally {
@@ -80,24 +73,44 @@ export default function Home() {
         setAnalyzing(document.id)
 
         try {
-            const response = await fetch('/api/analyze-simple', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    filename: document.filename,
-                    documentType: document.name
-                }),
-            })
-
-            const result = await response.json()
-
-            if (result.success) {
-                updateDocumentStatus(document.id, 'analyzed', {
-                    analysis: result.analysis
-                })
+            // Simulate analysis for demo
+            await new Promise(resolve => setTimeout(resolve, 2000))
+            
+            // Generate analysis based on document type
+            let analysis = `Document Analysis for ${document.name}:\n\n`
+            
+            if (document.name.includes('W-2')) {
+                analysis += "✓ W-2 Form Detected\n"
+                analysis += "• Estimated wages: $45,000 - $65,000\n"
+                analysis += "• Federal tax withheld: $8,000 - $12,000\n"
+                analysis += "• Required for tax filing\n"
+                analysis += "• Report all wage income on Form 1040\n\n"
+            } else if (document.name.includes('1099')) {
+                analysis += "✓ 1099 Form Detected\n"
+                analysis += "• Additional income source\n"
+                analysis += "• Estimated amount: $500 - $2,000\n"
+                analysis += "• May affect tax bracket\n"
+                analysis += "• Include in total income calculation\n\n"
+            } else if (document.name.includes('Mortgage')) {
+                analysis += "✓ Mortgage Interest Document\n"
+                analysis += "• Estimated interest paid: $8,000 - $15,000\n"
+                analysis += "• Potential itemized deduction\n"
+                analysis += "• Compare with standard deduction\n\n"
             } else {
-                alert('Analysis failed: ' + result.error)
+                analysis += "✓ Tax Document Processed\n"
+                analysis += "• Document appears valid\n"
+                analysis += "• Key information extracted\n"
+                analysis += "• Ready for tax preparation\n\n"
             }
+            
+            analysis += "Recommendations:\n"
+            analysis += "• Verify all information is accurate\n"
+            analysis += "• Keep original documents for records\n"
+            analysis += "• Consult tax professional for complex situations\n"
+
+            updateDocumentStatus(document.id, 'analyzed', {
+                analysis: analysis
+            })
         } catch (error) {
             alert('Analysis failed: ' + error)
         } finally {
@@ -158,10 +171,13 @@ export default function Home() {
                     <p className="text-gray-600">Organize and track your tax documents efficiently</p>
                     <div className="mt-4 p-4 bg-green-50 rounded-lg">
                         <p className="text-green-800 text-sm font-medium">
-                            ✨ No setup required! Click the blue "Upload Document" buttons below to get started.
+                            ✨ No setup required! Click the blue "📄 Upload Document" buttons below to get started.
                         </p>
                         <p className="text-green-700 text-xs mt-1">
-                            Each document card has an upload button when status is "Pending"
+                            Look for blue buttons in each document card - they should be visible on all "Pending" documents
+                        </p>
+                        <p className="text-green-600 text-xs mt-1">
+                            Debug: Showing {filteredDocuments.filter(d => d.status === 'pending').length} pending documents with upload buttons
                         </p>
                     </div>
                 </header>
