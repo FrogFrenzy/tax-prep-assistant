@@ -4,9 +4,12 @@ A modern web application to help organize and prepare tax documents efficiently.
 
 ## Features
 
+- **Document Upload**: Upload PDF, image, and text files for tax documents
+- **AI Analysis**: Powered by Claude AI to analyze and extract key information from documents
 - **Document Tracking**: Keep track of all your tax documents with status indicators
 - **Category Organization**: Organize documents by Income, Deductions, and Business categories
 - **Progress Monitoring**: Visual progress tracking for document completion
+- **Tax Return Generation**: AI-powered tax return summary generation
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 - **Tax Tips**: Built-in guidance and tips for tax preparation
 
@@ -25,12 +28,21 @@ A modern web application to help organize and prepare tax documents efficiently.
    npm install
    ```
 
-3. Run the development server:
+3. Set up environment variables:
+   ```bash
+   cp .env.local.example .env.local
+   ```
+   Then edit `.env.local` and add your Anthropic Claude API key:
+   ```
+   ANTHROPIC_API_KEY=your_claude_api_key_here
+   ```
+
+4. Run the development server:
    ```bash
    npm run dev
    ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ### Building for Production
 

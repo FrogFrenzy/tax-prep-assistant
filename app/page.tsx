@@ -1,14 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { FileText, Upload, CheckCircle, AlertCircle, Calculator, DollarSign } from 'lucide-react'
+import { FileText, Upload, CheckCircle, AlertCircle, Calculator, DollarSign, FileUp, Brain, Download } from 'lucide-react'
 
 interface Document {
   id: string
   name: string
   category: string
-  status: 'pending' | 'uploaded' | 'verified'
+  status: 'pending' | 'uploaded' | 'analyzed' | 'verified'
   required: boolean
+  filename?: string
+  analysis?: string
+  uploadedAt?: string
 }
 
 const TAX_DOCUMENTS: Document[] = [
@@ -25,22 +28,120 @@ const TAX_DOCUMENTS: Document[] = [
 export default function Home() {
   const [documents, setDocuments] = useState<Document[]>(TAX_DOCUMENTS)
   const [selectedCategory, setSelectedCategory] = useState<string>('All')
+  const [uploading, setUploading] = useState<string | null>(null)
+  const [analyzing, setAnalyzing] = useState<string | null>(null)
+  const [taxReturn, setTaxReturn] = useState<string | null>(null)
+  const [generatingReturn, setGeneratingReturn] = useState(false)
 
   const categories = ['All', 'Income', 'Deductions', 'Business']
 
-  const updateDocumentStatus = (id: string, status: Document['status']) => {
+  const updateDocumentStatus = (id: string, status: Document['status'], additionalData?: Partial<Document>) => {
     setDocuments(docs => 
-      docs.map(doc => doc.id === id ? { ...doc, status } : doc)
+      docs.map(doc => doc.id === id ? { ...doc, status, ...additionalData } : doc)
     )
+  }
+
+  const handleFileUpload = async (documentId: string, file: File) => {
+    setUploading(documentId)
+    
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('documentId', documentId)
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        updateDocumentStatus(documentId, 'uploaded', {
+          filename: result.filename,
+          uploadedAt: new Date().toISOString()
+        })
+      } else {
+        alert('Upload failed: ' + result.error)
+      }
+    } catch (error) {
+      alert('Upload failed: ' + error)
+    } finally {
+      setUploading(null)
+    }
+  }
+
+  const handleAnalyzeDocument = async (document: Document) => {
+    if (!document.filename) return
+    
+    setAnalyzing(document.id)
+    
+    try {
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename: document.filename,
+          documentType: document.name
+        }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        updateDocumentStatus(document.id, 'analyzed', {
+          analysis: result.analysis
+        })
+      } else {
+        alert('Analysis failed: ' + result.error)
+      }
+    } catch (error) {
+      alert('Analysis failed: ' + error)
+    } finally {
+      setAnalyzing(null)
+    }
+  }
+
+  const generateTaxReturn = async () => {
+    setGeneratingReturn(true)
+    
+    try {
+      const analyzedDocs = documents.filter(doc => doc.analysis)
+      
+      const response = await fetch('/api/generate-return', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          documents: analyzedDocs,
+          personalInfo: {
+            filingStatus: 'single', // This could be a form input
+            taxYear: 2024
+          }
+        }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setTaxReturn(result.taxReturn)
+      } else {
+        alert('Tax return generation failed: ' + result.error)
+      }
+    } catch (error) {
+      alert('Tax return generation failed: ' + error)
+    } finally {
+      setGeneratingReturn(false)
+    }
   }
 
   const filteredDocuments = selectedCategory === 'All' 
     ? documents 
     : documents.filter(doc => doc.category === selectedCategory)
 
-  const completedCount = documents.filter(doc => doc.status === 'verified').length
+  const completedCount = documents.filter(doc => doc.status === 'analyzed' || doc.status === 'verified').length
   const totalRequired = documents.filter(doc => doc.required).length
-  const completedRequired = documents.filter(doc => doc.required && doc.status === 'verified').length
+  const completedRequired = documents.filter(doc => doc.required && (doc.status === 'analyzed' || doc.status === 'verified')).length
+  const analyzedCount = documents.filter(doc => doc.status === 'analyzed').length
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -126,38 +227,79 @@ export default function Home() {
                   <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                     document.status === 'verified' 
                       ? 'bg-green-100 text-green-800'
+                      : document.status === 'analyzed'
+                      ? 'bg-blue-100 text-blue-800'
                       : document.status === 'uploaded'
                       ? 'bg-yellow-100 text-yellow-800'
                       : 'bg-gray-100 text-gray-800'
                   }`}>
                     {document.status === 'verified' && <CheckCircle className="h-4 w-4 mr-1" />}
+                    {document.status === 'analyzed' && <Brain className="h-4 w-4 mr-1" />}
                     {document.status === 'uploaded' && <Upload className="h-4 w-4 mr-1" />}
                     {document.status === 'pending' && <AlertCircle className="h-4 w-4 mr-1" />}
                     {document.status.charAt(0).toUpperCase() + document.status.slice(1)}
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="space-y-2">
                   {document.status === 'pending' && (
-                    <button
-                      onClick={() => updateDocumentStatus(document.id, 'uploaded')}
-                      className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
-                    >
-                      Mark as Uploaded
-                    </button>
+                    <div>
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png,.txt"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) handleFileUpload(document.id, file)
+                        }}
+                        className="hidden"
+                        id={`file-${document.id}`}
+                      />
+                      <label
+                        htmlFor={`file-${document.id}`}
+                        className={`flex-1 w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium cursor-pointer flex items-center justify-center ${
+                          uploading === document.id ? 'opacity-50' : ''
+                        }`}
+                      >
+                        <FileUp className="h-4 w-4 mr-2" />
+                        {uploading === document.id ? 'Uploading...' : 'Upload Document'}
+                      </label>
+                    </div>
                   )}
+                  
                   {document.status === 'uploaded' && (
                     <button
-                      onClick={() => updateDocumentStatus(document.id, 'verified')}
-                      className="flex-1 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm font-medium"
+                      onClick={() => handleAnalyzeDocument(document)}
+                      disabled={analyzing === document.id}
+                      className={`w-full bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors text-sm font-medium flex items-center justify-center ${
+                        analyzing === document.id ? 'opacity-50' : ''
+                      }`}
                     >
-                      Mark as Verified
+                      <Brain className="h-4 w-4 mr-2" />
+                      {analyzing === document.id ? 'Analyzing...' : 'Analyze with AI'}
                     </button>
                   )}
+                  
+                  {document.status === 'analyzed' && (
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => updateDocumentStatus(document.id, 'verified')}
+                        className="w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm font-medium"
+                      >
+                        Mark as Verified
+                      </button>
+                      {document.analysis && (
+                        <div className="bg-gray-50 p-3 rounded text-xs">
+                          <strong>AI Analysis:</strong>
+                          <p className="mt-1 text-gray-600">{document.analysis.substring(0, 150)}...</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
                   {document.status === 'verified' && (
                     <button
                       onClick={() => updateDocumentStatus(document.id, 'pending')}
-                      className="flex-1 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm font-medium"
+                      className="w-full bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm font-medium"
                     >
                       Reset Status
                     </button>
@@ -167,6 +309,55 @@ export default function Home() {
             </div>
           ))}
         </div>
+
+        {/* Tax Return Generation */}
+        {analyzedCount > 0 && (
+          <div className="mt-12 bg-green-50 rounded-lg p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <Calculator className="h-6 w-6 mr-2" />
+              Generate Tax Return
+            </h2>
+            <p className="text-gray-600 mb-4">
+              You have {analyzedCount} analyzed document{analyzedCount !== 1 ? 's' : ''}. 
+              Generate your tax return summary using AI analysis.
+            </p>
+            <button
+              onClick={generateTaxReturn}
+              disabled={generatingReturn}
+              className={`bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors font-medium flex items-center ${
+                generatingReturn ? 'opacity-50' : ''
+              }`}
+            >
+              <Download className="h-5 w-5 mr-2" />
+              {generatingReturn ? 'Generating Tax Return...' : 'Generate Tax Return'}
+            </button>
+          </div>
+        )}
+
+        {/* Tax Return Display */}
+        {taxReturn && (
+          <div className="mt-8 bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Your Tax Return Summary</h2>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <pre className="whitespace-pre-wrap text-sm text-gray-700">{taxReturn}</pre>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <button
+                onClick={() => {
+                  const blob = new Blob([taxReturn], { type: 'text/plain' })
+                  const url = URL.createObjectURL(blob)
+                  const a = document.createElement('a')
+                  a.href = url
+                  a.download = 'tax-return-summary.txt'
+                  a.click()
+                }}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+              >
+                Download Summary
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Tax Tips */}
         <div className="mt-12 bg-blue-50 rounded-lg p-6">
@@ -181,14 +372,16 @@ export default function Home() {
                 <li>• Gather all documents from the previous tax year</li>
                 <li>• Organize receipts and records by category</li>
                 <li>• Check for any missing forms from employers</li>
+                <li>• Set up your Claude API key in environment variables</li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold text-gray-800 mb-2">Don't Forget</h3>
               <ul className="text-sm text-gray-600 space-y-1">
                 <li>• Keep copies of all filed documents</li>
-                <li>• Review last year's return for missed deductions</li>
+                <li>• Review AI analysis for accuracy</li>
                 <li>• Consider consulting a tax professional for complex situations</li>
+                <li>• This tool provides guidance, not official tax advice</li>
               </ul>
             </div>
           </div>
