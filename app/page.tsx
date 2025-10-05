@@ -48,18 +48,26 @@ export default function Home() {
         setUploading(documentId)
 
         try {
-            // Simulate upload for demo purposes
-            await new Promise(resolve => setTimeout(resolve, 1500))
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('documentId', documentId)
 
-            // For demo, we'll just store the file info and mark as uploaded
-            const filename = `${documentId}_${file.name}`
-
-            updateDocumentStatus(documentId, 'uploaded', {
-                filename: filename,
-                uploadedAt: new Date().toISOString()
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
             })
 
-            alert(`🐔 File "${file.name}" uploaded successfully! Tax Chicken is ready to analyze. Click "Analyze Document" to continue.`)
+            const result = await response.json()
+
+            if (result.success) {
+                updateDocumentStatus(documentId, 'uploaded', {
+                    filename: result.filename,
+                    uploadedAt: new Date().toISOString()
+                })
+                alert(`🐔 ${result.message} File: "${result.originalName}" (${(result.size / 1024).toFixed(1)} KB)`)
+            } else {
+                alert('Upload failed: ' + result.error)
+            }
         } catch (error) {
             alert('Upload failed: ' + error)
         } finally {
@@ -73,44 +81,27 @@ export default function Home() {
         setAnalyzing(document.id)
 
         try {
-            // Client-side analysis simulation
-            await new Promise(resolve => setTimeout(resolve, 2000))
-
-            // Generate analysis based on document type
-            let analysis = `🐔 Tax Chicken Analysis for ${document.name}:\n\n`
-
-            if (document.name.includes('W-2')) {
-                analysis += "✓ W-2 Form Detected\n"
-                analysis += "• Estimated wages: $45,000 - $65,000\n"
-                analysis += "• Federal tax withheld: $8,000 - $12,000\n"
-                analysis += "• Required for tax filing\n"
-                analysis += "• Report all wage income on Form 1040\n\n"
-            } else if (document.name.includes('1099')) {
-                analysis += "✓ 1099 Form Detected\n"
-                analysis += "• Additional income source\n"
-                analysis += "• Estimated amount: $500 - $2,000\n"
-                analysis += "• May affect tax bracket\n"
-                analysis += "• Include in total income calculation\n\n"
-            } else if (document.name.includes('Mortgage')) {
-                analysis += "✓ Mortgage Interest Document\n"
-                analysis += "• Estimated interest paid: $8,000 - $15,000\n"
-                analysis += "• Potential itemized deduction\n"
-                analysis += "• Compare with standard deduction\n\n"
-            } else {
-                analysis += "✓ Tax Document Processed\n"
-                analysis += "• Document appears valid\n"
-                analysis += "• Key information extracted\n"
-                analysis += "• Ready for tax preparation\n\n"
-            }
-
-            analysis += "🐔 Tax Chicken Recommendations:\n"
-            analysis += "• Verify all information is accurate\n"
-            analysis += "• Keep original documents for records\n"
-            analysis += "• Consult tax professional for complex situations\n"
-
-            updateDocumentStatus(document.id, 'analyzed', {
-                analysis: analysis
+            const response = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    filename: document.filename,
+                    documentType: document.name
+                }),
             })
+
+            const result = await response.json()
+
+            if (result.success) {
+                updateDocumentStatus(document.id, 'analyzed', {
+                    analysis: result.analysis
+                })
+                if (result.textLength > 0) {
+                    alert(`🐔 ${result.message} Extracted ${result.textLength} characters of text for analysis!`)
+                }
+            } else {
+                alert('Analysis failed: ' + result.error)
+            }
         } catch (error) {
             alert('Analysis failed: ' + error)
         } finally {
@@ -122,10 +113,30 @@ export default function Home() {
         setGeneratingReturn(true)
 
         try {
-            // Client-side tax return generation
-            await new Promise(resolve => setTimeout(resolve, 3000))
-            
             const analyzedDocs = documents.filter(doc => doc.analysis)
+
+            const response = await fetch('/api/generate-return', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    documents: analyzedDocs,
+                    personalInfo: {
+                        filingStatus: 'single',
+                        taxYear: 2024
+                    }
+                }),
+            })
+
+            const result = await response.json()
+
+            if (result.success) {
+                setTaxReturn(result.taxReturn)
+                alert(`🐔 ${result.message}`)
+                return
+            } else {
+                alert('Tax return generation failed: ' + result.error)
+                return
+            }
             const currentYear = new Date().getFullYear()
             const taxYear = currentYear - 1
 
@@ -138,7 +149,7 @@ export default function Home() {
             // INCOME SECTION
             report += `PART I - INCOME (Form 1040, Lines 1-8)\n`
             report += `${'='.repeat(40)}\n`
-            
+
             let totalIncome = 0
             analyzedDocs.forEach(doc => {
                 if (doc.category === 'Income') {
@@ -159,7 +170,7 @@ export default function Home() {
             // DEDUCTIONS
             report += `PART II - DEDUCTIONS (Form 1040, Lines 12-14)\n`
             report += `${'='.repeat(45)}\n`
-            
+
             let itemizedDeductions = 0
             analyzedDocs.forEach(doc => {
                 if (doc.category === 'Deductions') {
