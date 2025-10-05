@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession } from 'next-auth/react'
+
 import { FileText, Upload, CheckCircle, AlertCircle, Calculator, DollarSign, FileUp, Brain, Download } from 'lucide-react'
-import AuthButton from './components/AuthButton'
+
 
 interface Document {
     id: string
@@ -28,7 +28,7 @@ const TAX_DOCUMENTS: Document[] = [
 ]
 
 export default function Home() {
-    const { data: session } = useSession()
+
     const [documents, setDocuments] = useState<Document[]>(TAX_DOCUMENTS)
     const [selectedCategory, setSelectedCategory] = useState<string>('All')
     const [uploading, setUploading] = useState<string | null>(null)
@@ -50,15 +50,15 @@ export default function Home() {
         try {
             // Simulate upload for demo purposes
             await new Promise(resolve => setTimeout(resolve, 1500))
-            
+
             // For demo, we'll just store the file info and mark as uploaded
             const filename = `${documentId}_${file.name}`
-            
+
             updateDocumentStatus(documentId, 'uploaded', {
                 filename: filename,
                 uploadedAt: new Date().toISOString()
             })
-            
+
             alert(`✅ File "${file.name}" uploaded successfully! Click "Analyze Document" to continue.`)
         } catch (error) {
             alert('Upload failed: ' + error)
@@ -75,10 +75,10 @@ export default function Home() {
         try {
             // Simulate analysis for demo
             await new Promise(resolve => setTimeout(resolve, 2000))
-            
+
             // Generate analysis based on document type
             let analysis = `Document Analysis for ${document.name}:\n\n`
-            
+
             if (document.name.includes('W-2')) {
                 analysis += "✓ W-2 Form Detected\n"
                 analysis += "• Estimated wages: $45,000 - $65,000\n"
@@ -102,7 +102,7 @@ export default function Home() {
                 analysis += "• Key information extracted\n"
                 analysis += "• Ready for tax preparation\n\n"
             }
-            
+
             analysis += "Recommendations:\n"
             analysis += "• Verify all information is accurate\n"
             analysis += "• Keep original documents for records\n"
@@ -163,10 +163,7 @@ export default function Home() {
         <div className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-6xl mx-auto px-4">
                 <header className="text-center mb-8">
-                    <div className="flex justify-between items-center mb-6">
-                        <div></div>
-                        <AuthButton />
-                    </div>
+                    <div className="mb-6"></div>
                     <h1 className="text-4xl font-bold text-gray-900 mb-2">Tax Prep Assistant</h1>
                     <p className="text-gray-600">Organize and track your tax documents efficiently</p>
                     <div className="mt-4 p-4 bg-green-50 rounded-lg">
@@ -346,7 +343,7 @@ export default function Home() {
                         </h2>
                         <p className="text-gray-600 mb-4">
                             You have {analyzedCount} analyzed document{analyzedCount !== 1 ? 's' : ''}.
-                            Generate your tax return summary using AI analysis.
+                            Generate an IRS Form 1040 preparation worksheet with detailed calculations.
                         </p>
                         <button
                             onClick={generateTaxReturn}
@@ -355,7 +352,7 @@ export default function Home() {
                                 }`}
                         >
                             <Download className="h-5 w-5 mr-2" />
-                            {generatingReturn ? 'Generating Tax Return...' : 'Generate Tax Return'}
+                            {generatingReturn ? 'Generating IRS Worksheet...' : 'Generate IRS Form 1040 Worksheet'}
                         </button>
                     </div>
                 )}
@@ -363,7 +360,7 @@ export default function Home() {
                 {/* Tax Return Display */}
                 {taxReturn && (
                     <div className="mt-8 bg-white rounded-lg shadow p-6">
-                        <h2 className="text-xl font-bold text-gray-900 mb-4">Your Tax Return Summary</h2>
+                        <h2 className="text-xl font-bold text-gray-900 mb-4">IRS Form 1040 Preparation Worksheet</h2>
                         <div className="bg-gray-50 p-4 rounded-lg">
                             <pre className="whitespace-pre-wrap text-sm text-gray-700">{taxReturn}</pre>
                         </div>
@@ -374,12 +371,12 @@ export default function Home() {
                                     const url = URL.createObjectURL(blob)
                                     const a = document.createElement('a')
                                     a.href = url
-                                    a.download = 'tax-return-summary.txt'
+                                    a.download = 'IRS-Form-1040-Worksheet.txt'
                                     a.click()
                                 }}
                                 className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
                             >
-                                Download Summary
+                                Download IRS Worksheet
                             </button>
                         </div>
                     </div>
